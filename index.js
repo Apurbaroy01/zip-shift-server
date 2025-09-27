@@ -14,7 +14,7 @@ console.log(process.env.USER_PASs)
 
 
 
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const uri = `mongodb+srv://${process.env.USER_DB}:${process.env.USER_PASs}@cluster0.4gy1j38.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -49,6 +49,14 @@ async function run() {
                 sort: { creation_Date: - 1 }
             }
             const result = await parcelCollection.find(query, options).toArray()
+            res.send(result);
+        });
+
+        app.delete('/parcels/:id', async (req, res) => {
+            const id = req.params.id;
+            console.log(id)
+            const query = { _id: new ObjectId(id) }
+            const result = await parcelCollection.deleteOne(query)
             res.send(result);
         })
 
