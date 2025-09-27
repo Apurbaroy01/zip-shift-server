@@ -42,6 +42,16 @@ async function run() {
             res.send(result);
         })
 
+        app.get('/parcels', async (req, res) => {
+            const userEmail = req.query.email;
+            const query = userEmail ? { email: userEmail } : {};
+            const options = {
+                sort: { creation_Date: - 1 }
+            }
+            const result = await parcelCollection.find(query, options).toArray()
+            res.send(result);
+        })
+
 
 
     }
