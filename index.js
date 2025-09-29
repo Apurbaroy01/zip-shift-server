@@ -71,9 +71,10 @@ async function run() {
         // payment section--------------------
 
         app.post('/cteate_payment_intant', async (req, res) => {
+            const amountIncents = req.body.amountInCents;
             try {
                 const paymentIntent = await stripe.paymentIntents.create({
-                    amount: 1000, // amount in cents, so 1000 = $10
+                    amount: amountIncents, // amount in cents, so 1000 = $10
                     currency: "usd",
                     payment_method_types: ['card'],
                 });
@@ -83,6 +84,7 @@ async function run() {
                 res.status(500).send({ error: error.message });
             }
         });
+        // ------------------------------------
 
 
     }
