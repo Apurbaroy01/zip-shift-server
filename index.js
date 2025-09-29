@@ -36,6 +36,7 @@ async function run() {
 
 
         const parcelCollection = client.db("zip_shift").collection("parcels");
+        const paymentCollection = client.db("zip_shift").collection("payment");
 
         app.post('/parcels', async (req, res) => {
             const body = req.body
@@ -84,6 +85,44 @@ async function run() {
                 res.status(500).send({ error: error.message });
             }
         });
+
+
+        app.post('/payment', async (req, res) => {
+            const { parcelId, email, amount, transactionId, paymentMathod } = req.body;
+            const query = { _id: new ObjectId(parcelId) }
+            const updatedoc = {
+
+                $set: {
+                    payment_status: "paid",
+
+                }
+
+            }
+            const updateResult = await parcelCollection.updateOne(query, updatedoc)
+
+            const paymentDocument = {
+                parcelId,
+                email,
+                amount,
+                paid_At: new Date().toISOString(),
+                transactionId,
+                paymentMathod
+            }
+            const result = await paymentCollection.insertOne(paymentDocument)
+
+            res.send(updateResult, result);
+
+        });
+
+
+        app.get('/payment', async (req, res) => {
+            const email = req.query.email;
+            const query={email: email};
+            const result=await paymentCollection.find(query).toArray()
+            res.send(result);
+        })
+
+
         // ------------------------------------
 
 
