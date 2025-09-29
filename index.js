@@ -2,6 +2,7 @@ const express = require('express')
 const cors = require('cors')
 const dotenv = require('dotenv')
 dotenv.config()
+const stripe = require('stripe')(process.env.PAYMENT_KEY);
 const app = express()
 const port = process.env.PORT || 5000
 
@@ -52,6 +53,14 @@ async function run() {
             res.send(result);
         });
 
+        app.get('/parcels/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: new ObjectId(id) }
+            const result = await parcelCollection.findOne(query)
+            res.send(result);
+
+        })
+
         app.delete('/parcels/:id', async (req, res) => {
             const id = req.params.id;
             console.log(id)
@@ -59,7 +68,21 @@ async function run() {
             const result = await parcelCollection.deleteOne(query)
             res.send(result);
         })
+        // payment section--------------------
 
+        app.post('/cteate_payment_intant', async (req, res) => {
+            try {
+                const paymentIntent = await stripe.paymentIntents.create({
+                    amount: 1000, // amount in cents, so 1000 = $10
+                    currency: "usd",
+                    payment_method_types: ['card'],
+                });
+                res.json({ clientSecret: paymentIntent.client_secret });
+            } catch (error) {
+                console.error("Payment Intent Error:", error);
+                res.status(500).send({ error: error.message });
+            }
+        });
 
 
     }
