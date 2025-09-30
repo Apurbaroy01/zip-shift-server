@@ -69,6 +69,25 @@ async function run() {
             const result = await parcelCollection.deleteOne(query)
             res.send(result);
         })
+
+        // tracking----------------------
+
+
+        app.post("/tracking", async (req, res) => {
+            const { tracking_id, parcel_id, status, message, updated_by = '' } = req.body;
+
+            const log = {
+                tracking_id,
+                parcel_id: parcel_id ? new ObjectId(parcel_id) : undefined,
+                status,
+                message,
+                time: new Date(),
+                updated_by,
+            };
+
+            const result = await trackingCollection.insertOne(log);
+            res.send({ success: true, insertedId: result.insertedId });
+        });
         // payment section--------------------
 
         app.post('/cteate_payment_intant', async (req, res) => {
@@ -117,8 +136,8 @@ async function run() {
 
         app.get('/payment', async (req, res) => {
             const email = req.query.email;
-            const query={email: email};
-            const result=await paymentCollection.find(query).toArray()
+            const query = { email: email };
+            const result = await paymentCollection.find(query).toArray()
             res.send(result);
         })
 
