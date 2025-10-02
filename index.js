@@ -35,8 +35,21 @@ async function run() {
         console.log("You successfully connected to MongoDB!✅");
 
 
+        const userCollection = client.db("zip_shift").collection("user");
         const parcelCollection = client.db("zip_shift").collection("parcels");
         const paymentCollection = client.db("zip_shift").collection("payment");
+
+
+        app.post('/user', async (req, res) => {
+            const email = req.body.email
+            const userExits = await userCollection.findOne({ email })
+            if (userExits) {
+                return res.status(2000).send({ message: "user already exit", insertId: false })
+            }
+            const user = req.body;
+            const result = await userCollection.insertOne(user)
+            res.send(result);
+        })
 
         app.post('/parcels', async (req, res) => {
             const body = req.body
